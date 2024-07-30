@@ -32,3 +32,15 @@ export const renderText = (data) => {
   }
   return text
 }
+
+export const removeAccents = str =>
+  str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+export const removeTLD = str => {
+  const splitDomain = str.split(".");
+  if (splitDomain.length <= 1) {
+    return str;
+  }
+
+  return splitDomain.slice(0, -1).join(".")
+};

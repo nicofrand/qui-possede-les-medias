@@ -13,6 +13,7 @@
     "release": "npm-run-all build prerelease:* publish:*"
   },
   "dependencies": {
+    "csv-loader": "^3.0.5",
     "element-ready": "^6.0.0",
     "localforage": "^1.7.2",
     "select-dom": "^7.1.0",

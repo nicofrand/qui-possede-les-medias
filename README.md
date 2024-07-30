@@ -14,7 +14,7 @@ _Apprenons à faire connaissance avec les actionnaires majoritaires des grands m
 
 💰 Une fois installé, ce plugin permet de savoir qui est l’actionnaire majoritaire qui possède financièrement le média en question.
 
-👀 Sur chaque nom, il y a un lien vers la page Wikipédia de l’actionnaire afin de mieux le connaître.
+👀 Sur chaque nom, il y a un lien vers la page Wikipédia de l’actionnaire afin de mieux le connaître, lorsque disponible.
 
 
 ## Installation
@@ -31,25 +31,22 @@ _Apprenons à faire connaissance avec les actionnaires majoritaires des grands m
 
 ### Données
 
-Pour modifier ou ajouter des nouvelles données au plugin, deux fichier [CSV](https://fr.wikipedia.org/wiki/Comma-separated_values) sont disponibles.
+Pour modifier ou ajouter des nouvelles données au plugin, deux fichier [CSV](https://fr.wikipedia.org/wiki/Comma-separated_values) et [TSV]() sont disponibles.
 Ces fichiers sont éditables via un logiciel tableur.
 
-* [**`data/sites.csv`**](data/sites.csv) liste tous les sites pour les quels un ou plusieurs propriétaires sont connus.
-  Pour chaque domaine, le nom de chaque propriétaire est listé à la suite.
-  
-  ```csv
-  domaine,proriétaire numéro 1, propriétaire numéro 2,,
-  ```
+* [**`data/relations_medias_francais.tsv`**](data/relations_medias_francais.tsv) est directement extrait du [dépôt du Monde Diplomatique](https://github.com/mdiplo/Medias_francais/blob/master/relations_medias_francais.tsv) et liste les relations entre les groupes médiatiques et leurs propriétaires.
 
-* [**`data/entities.csv`**](data/entities.csv) liste tous les propriétaires mentionnés dans `data/sites.csv`.
+* [**`data/entities.csv`**](data/entities.csv) liste des propriétaires ou entités, avec leur type et un lien pour en savoir plus.
   Chaque propriétaire est listé avec son type (`holder` ou `group`) et un lien pour en savoir plus.
-  
+
   ```csv
   nom,type,lien
   ```
 
+TODO: extraire le type directement depuis le fichier *medias_francais.tsv* du dépôt du Monde diplomatique, et construire les liens automatiquement vers Wikipedia et DuckDuckGo.
+
 Pour soumettre des modifications :
- * [Télécharger le ou les fichiers dans le répertoir `data/`](https://github.com/DesignandHuman/qui-possede-les-medias/upload/master/data)
+ * [Télécharger le ou les fichiers dans le répertoire `data/`](https://github.com/DesignandHuman/qui-possede-les-medias/upload/master/data)
  * Soumettre le _commit_
  * Soumettre la _Pull request_
 

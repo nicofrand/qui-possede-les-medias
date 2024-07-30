@@ -29,13 +29,14 @@ module.exports = (env, argv) => ({
         }
       },
       {
-        test: /\.csv$/,
+        test: /\.(t|c)sv$/,
         exclude: /node_modules/,
         use: {
-          loader: './data/csv-loader',
+          loader: 'csv-loader',
           options: {
-            columns: true,
-            skip_empty_lines: true
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true
           }
         }
       }
