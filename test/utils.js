@@ -9,7 +9,7 @@ test('isEmpty', t => {
   t.false(utils.isEmpty('f'))
   t.false(utils.isEmpty(['f']))
   t.false(utils.isEmpty({f: false}))
-})
+});
 
 test('renderData', t => {
   const renderedData = utils.renderData([
@@ -32,4 +32,13 @@ test('renderData', t => {
   t.true(renderedData.includes('<a href="link" rel="noopener noreferrer" target="_blank">name</a>'))
   t.true(renderedData.includes('no link'))
   t.false(renderedData.includes('rel="noopener noreferrer" target="_blank">no link</a>'))
+});
+
+test('removeAccents', t => {
+  t.deepEqual(utils.removeAccents('Équipé àvec des fôtes'), 'Equipe avec des fotes');
+})
+
+test('removeTLD', t => {
+  t.deepEqual(utils.removeTLD('mydomain.fr'), 'mydomain');
+  t.deepEqual(utils.removeTLD('my.domain.fr'), 'my.domain');
 })

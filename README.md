@@ -31,7 +31,7 @@ _Apprenons à faire connaissance avec les actionnaires majoritaires des grands m
 
 ### Données
 
-Pour modifier ou ajouter des nouvelles données au plugin, deux fichier [CSV](https://fr.wikipedia.org/wiki/Comma-separated_values) et [TSV]() sont disponibles.
+Pour modifier ou ajouter des nouvelles données au plugin, deux fichier [CSV](https://fr.wikipedia.org/wiki/Comma-separated_values) et [TSV](https://fr.wikipedia.org/wiki/Tabulation-separated_values) sont disponibles.
 Ces fichiers sont éditables via un logiciel tableur.
 
 * [**`data/relations_medias_francais.tsv`**](data/relations_medias_francais.tsv) est directement extrait du [dépôt du Monde Diplomatique](https://github.com/mdiplo/Medias_francais/blob/master/relations_medias_francais.tsv) et liste les relations entre les groupes médiatiques et leurs propriétaires.
@@ -44,6 +44,22 @@ Ces fichiers sont éditables via un logiciel tableur.
   ```
 
 TODO: extraire le type directement depuis le fichier *medias_francais.tsv* du dépôt du Monde diplomatique, et construire les liens automatiquement vers Wikipedia et DuckDuckGo.
+
+À partir des noms des groupes médias, une liste de sites web potentiels est générée en normalisant le nom du groupe selon les critères ci-dessous, et en comparant ensuite le domaine de chaque page avec cette liste de sites web.
+
+Critères :
+
+Chaque nom de groupe est d'abord transformé en minuscules, sans accents ni virgule ni « ' », ni « groupe », ni TLD final (ex: slate.fr devient slate).
+Ensuite pour chaque nom, une liste est générée :
+
+* Nom sans accents, sans espaces
+* Nom sans accents, sans espaces, « l’ » est supprimé
+* Nom sans accents, sans espaces, « l’ » est remplacé par « l »
+* Nom avec accents remplacés par un tiret, sans espaces
+* Nom avec accents remplacés par un tiret, « l’ » est supprimé
+* Nom avec accents remplacés par un tiret, « l’ » est remplacé par « l »
+
+Et enfin pour chaque élément de cette liste, deux éléments sont également générés avec un préfixe « my » (ex: mycanal) et un suffixe « info » (ex: tf1info).
 
 Pour soumettre des modifications :
  * [Télécharger le ou les fichiers dans le répertoire `data/`](https://github.com/DesignandHuman/qui-possede-les-medias/upload/master/data)

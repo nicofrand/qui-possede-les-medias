@@ -76,8 +76,6 @@ browser.runtime.onInstalled.addListener(async event => {
         )
     );
 
-    // What to do with "Canal +"?
-
     const ownersList = Array.from(owners);
 
     const possibleDomains = new Set([
@@ -90,16 +88,18 @@ browser.runtime.onInstalled.addListener(async event => {
     ]);
 
     for (const domain of possibleDomains) {
-      console.log(domain);
       await sitesStore.setItem(domain, ownersList);
+
+      // Ex: Canal+ -> mycanal
+      await sitesStore.setItem(`my${domain}`, ownersList);
 
       // Ex: tf1 -> tf1info.fr
       await sitesStore.setItem(`${domain}info`, ownersList);
     }
+  }
 
-    for (const item of entities) {
-      await entitiesStore.setItem(item.name, item);
-    }
+  for (const item of entities) {
+    await entitiesStore.setItem(item.name, item);
   }
 })
 
