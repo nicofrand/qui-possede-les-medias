@@ -36,9 +36,13 @@ test('renderData', t => {
 
 test('removeAccents', t => {
   t.deepEqual(utils.removeAccents('Équipé àvec des fôtes'), 'Equipe avec des fotes');
-})
+});
 
 test('removeTLD', t => {
   t.deepEqual(utils.removeTLD('mydomain.fr'), 'mydomain');
   t.deepEqual(utils.removeTLD('my.domain.fr'), 'my.domain');
-})
+});
+
+test('normalizeMediaName', t => {
+  t.deepEqual(utils.normalizeMediaName('Groupe, de l\'est'), 'de lest');
+});

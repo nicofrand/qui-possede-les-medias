@@ -1,40 +1,14 @@
-import 'webext-dynamic-content-scripts'
-import localforage from 'localforage'
-import { isEmpty, removeAccents, removeTLD } from './libs/utils'
-import { renderBadge } from './libs/browser'
-import optionsStorage from './libs/storage'
+import 'webext-dynamic-content-scripts';
+import localforage from 'localforage';
+import { isEmpty, removeTLD, mediaNameToWebsites } from './libs/utils';
+import { renderBadge } from './libs/browser';
+import { mediaRelationsDataToMap } from './libs/parser';
+import optionsStorage from './libs/storage';
 
 localforage.setDriver([localforage.INDEXEDDB, localforage.WEBSQL])
 
 const sitesStore = localforage.createInstance({name: "sites"})
 const entitiesStore = localforage.createInstance({name: "entities"})
-
-const reduceOwners = (mediaGroupsToOwners) => {
-  let modified = false;
-
-  // Some owners are holdings, also owned by other holdings or owners.
-  for (const [mediaGroup, owners] of mediaGroupsToOwners) {
-    for (const owner of owners) {
-      if (owner !== mediaGroup && mediaGroupsToOwners.has(owner)) {
-        const ownersArray = Array.from(owners);
-        const parents = Array.from(mediaGroupsToOwners.get(owner)).filter(itm => itm !== mediaGroup);
-
-        // Remove the current owner & insert parents
-        ownersArray.splice(ownersArray.indexOf(owner), 1, ...parents);
-
-        mediaGroupsToOwners.set(mediaGroup, new Set(ownersArray));
-
-        modified = true;
-      }
-    }
-  }
-
-  if (modified) {
-    return reduceOwners(mediaGroupsToOwners);
-  }
-
-  return mediaGroupsToOwners;
-}
 
 browser.runtime.onInstalled.addListener(async event => {
   if (event.reason !== 'install') {
@@ -44,64 +18,24 @@ browser.runtime.onInstalled.addListener(async event => {
   const { default: relations } = await import(/* webpackChunkName: "relations" */ '../data/relations_medias_francais.tsv');
   const { default: entities } = await import(/* webpackChunkName: "entities" */ '../data/entities.csv');
 
-  // First, create a map of targets (media groups) to origins (owners).
-  const mediaGroupsToOwners = new Map();
-  for (const item of relations) {
-    if (!item.hasOwnProperty("cible") || !item.hasOwnProperty("origine")) {
-      continue;
-    }
-
-    if (item.cible === item.origine) {
-      continue;
-    }
-
-    if (!mediaGroupsToOwners.has(item.cible)) {
-      mediaGroupsToOwners.set(item.cible, new Set());
-    }
-
-    mediaGroupsToOwners.get(item.cible).add(item.origine);
-  }
-
-  // Reduce map and sort it.
-  const mediaToOwners = new Map([...reduceOwners(mediaGroupsToOwners).entries()].sort());
+  const mediaToOwners = mediaRelationsDataToMap(relations);
 
   // Try to build a list of possible websites given a media.
+  const websitesToOwners = new Map();
   for (const [media, owners] of mediaToOwners) {
-    const mediaName = removeAccents(
-        removeTLD(
-          media
-            .toLowerCase()
-            .replace(/(groupe|, |'|\+)/g, "")
-            .trim()
-        )
-    );
+    mediaNameToWebsites(media).forEach(domain => {
+      websitesToOwners.set(domain, owners);
+    });
+  }
 
-    const ownersList = Array.from(owners);
-
-    const possibleDomains = new Set([
-      `${mediaName.replaceAll(" ", "")}`,
-      `${mediaName.replaceAll(" ", "").replaceAll("l’", "")}`,
-      `${mediaName.replaceAll(" ", "").replaceAll("l’", "l")}`,
-      `${mediaName.replaceAll(" ", "-")}`,
-      `${mediaName.replaceAll(" ", "-").replaceAll("l’", "")}`,
-      `${mediaName.replaceAll(" ", "-").replaceAll("l’", "l")}`,
-    ]);
-
-    for (const domain of possibleDomains) {
-      await sitesStore.setItem(domain, ownersList);
-
-      // Ex: Canal+ -> mycanal
-      await sitesStore.setItem(`my${domain}`, ownersList);
-
-      // Ex: tf1 -> tf1info.fr
-      await sitesStore.setItem(`${domain}info`, ownersList);
-    }
+  for (const [domain, owners] of websitesToOwners) {
+    await sitesStore.setItem(domain, Array.from(owners));
   }
 
   for (const item of entities) {
     await entitiesStore.setItem(item.name, item);
   }
-})
+});
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
   if (!message || !message.action) {

@@ -44,3 +44,41 @@ export const removeTLD = str => {
 
   return splitDomain.slice(0, -1).join(".")
 };
+
+export const normalizeMediaName = name => {
+  return removeAccents(
+    removeTLD(
+      name
+        .toLowerCase()
+        .replace(/(groupe|, |'|\+)/g, "")
+        .trim()
+    )
+  );
+};
+
+/**
+ * @param {string} media
+ */
+export const mediaNameToWebsites = (media) => {
+  const mediaName = normalizeMediaName(media);
+
+  const possibleDomains = new Set([
+    `${mediaName.replaceAll(" ", "")}`,
+    `${mediaName.replaceAll(" ", "").replaceAll("l’", "")}`,
+    `${mediaName.replaceAll(" ", "").replaceAll("l’", "l")}`,
+    `${mediaName.replaceAll(" ", "-")}`,
+    `${mediaName.replaceAll(" ", "-").replaceAll("l’", "")}`,
+    `${mediaName.replaceAll(" ", "-").replaceAll("l’", "l")}`,
+  ]);
+
+  const withPrefixAndSuffix = new Set(possibleDomains);
+  for (const domain of possibleDomains) {
+    // Ex: Canal+ -> mycanal
+    withPrefixAndSuffix.add(`my${domain}`);
+
+    // Ex: tf1 -> tf1info.fr
+    withPrefixAndSuffix.add(`${domain}info`);
+  }
+
+  return withPrefixAndSuffix;
+};
