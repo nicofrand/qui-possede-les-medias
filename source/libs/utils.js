@@ -80,5 +80,13 @@ export const mediaNameToWebsites = (media) => {
     withPrefixAndSuffix.add(`${domain}info`);
   }
 
+  // Remove common prefixes.
+  if (mediaName.startsWith("le ")) {
+    const unprefixedPossibleDomains = mediaNameToWebsites(mediaName.substring(3));
+    for (const domain of unprefixedPossibleDomains) {
+      withPrefixAndSuffix.add(domain);
+    }
+  }
+
   return withPrefixAndSuffix;
 };
