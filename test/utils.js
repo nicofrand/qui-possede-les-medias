@@ -1,5 +1,5 @@
-import test from 'ava'
-import * as utils from '../source/libs/utils'
+import test from 'ava';
+import * as utils from '../source/libs/utils';
 
 test('isEmpty', t => {
   t.true(utils.isEmpty(''))

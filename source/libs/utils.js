@@ -51,6 +51,7 @@ export const normalizeMediaName = name => {
       name
         .toLowerCase()
         .replace(/(groupe|, |'|\+)/g, "")
+        .replace("&", "et")
         .trim()
     )
   );
@@ -71,22 +72,48 @@ export const mediaNameToWebsites = (media) => {
     `${mediaName.replaceAll(" ", "-").replaceAll("l’", "l")}`,
   ]);
 
-  const withPrefixAndSuffix = new Set(possibleDomains);
-  for (const domain of possibleDomains) {
-    // Ex: Canal+ -> mycanal
-    withPrefixAndSuffix.add(`my${domain}`);
+  const allDomains = new Set(possibleDomains);
 
-    // Ex: tf1 -> tf1info.fr
-    withPrefixAndSuffix.add(`${domain}info`);
-  }
-
-  // Remove common prefixes.
-  if (mediaName.startsWith("le ")) {
-    const unprefixedPossibleDomains = mediaNameToWebsites(mediaName.substring(3));
-    for (const domain of unprefixedPossibleDomains) {
-      withPrefixAndSuffix.add(domain);
+  // Remove dashes
+  const withoutDashes = mediaName.replaceAll("-", "");
+  if (withoutDashes !== mediaName) {
+    const undashedPossibleDomains = mediaNameToWebsites(withoutDashes);
+    for (const domain of undashedPossibleDomains) {
+      allDomains.add(domain);
     }
   }
 
-  return withPrefixAndSuffix;
+  // Remove common prefixes.
+  if (mediaName.startsWith("le ") || mediaName.startsWith("la ")) {
+    const unprefixedPossibleDomains = mediaNameToWebsites(mediaName.substring(3));
+    for (const domain of unprefixedPossibleDomains) {
+      allDomains.add(domain);
+    }
+  }
+
+  // Remove common suffixes.
+  const withoutSuffix = mediaName.replace(/(?:du|de la)?\s?(?:republicaine?|centre|libere|hebdo|info|play|litteraire|’)$/i, "").trim();
+  if (withoutSuffix !== mediaName) {
+    const unsuffixedPossibleDomains = mediaNameToWebsites(withoutSuffix);
+    for (const domain of unsuffixedPossibleDomains) {
+      allDomains.add(domain);
+    }
+  }
+
+  // Try with acronyms
+  const acronym = mediaName.split(" ").map(word => {
+    if (word === "le" || word === "la") {
+      return word;
+    }
+
+    return word[0];
+  }).join("");
+  if (acronym && acronym.length > 2 && acronym !== mediaName) {
+    const acronymsPossibleDomains = mediaNameToWebsites(acronym);
+    for (const domain of acronymsPossibleDomains) {
+      allDomains.add(domain);
+    }
+  }
+
+  return allDomains;
 };
